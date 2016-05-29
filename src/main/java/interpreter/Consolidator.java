@@ -29,7 +29,8 @@ public class Consolidator {
     /**
      * Create a new Consolidator with the default types.
      */
-    @SuppressWarnings("unchecked") public Consolidator () {
+    @SuppressWarnings("unchecked")
+    public Consolidator () {
         invokers = new ArrayList[MAX_SIZE];
         for (int i = 0; i < MAX_SIZE; i++) {
             invokers [i] = new ArrayList<HighLevelOperation>();
@@ -77,9 +78,9 @@ public class Consolidator {
         if (rwCount > maximumSetSize) {
             maximumSetSize = rwCount;
         }
-        Operation newOp = (Operation) highLevelOperation;
+        Operation newOp = highLevelOperation;
         for (HighLevelOperation hlo : invokers [rwCount]) {
-            Operation op = (Operation) hlo;
+            Operation op = hlo;
             if (newOp.operation == op.operation) {
                 return;
             }
@@ -143,7 +144,7 @@ public class Consolidator {
 
         for (int i = 0; i < MAX_SIZE; i++) {
             for (HighLevelOperation hlo : invokers [i]) {
-                Operation op = (Operation) hlo;
+                Operation op = hlo;
                 simpleNames.add(op.operation);
             }
         }
@@ -162,7 +163,7 @@ public class Consolidator {
     public void removeTestCase (OperationType testCase, int rwCount) {
         HighLevelOperation victim = null;
         for (HighLevelOperation hlo : invokers [rwCount]) {
-            Operation op = (Operation) hlo;
+            Operation op = hlo;
             if (testCase == op.operation) {
                 victim = hlo;
                 break;

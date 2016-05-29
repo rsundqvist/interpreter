@@ -85,7 +85,7 @@ public class Interpreter {
         // Set before list and begin.
         before.addAll(candidateList);
         interpret();
-        
+
         // Return the result.
         return new ArrayList<Operation>(after);
     }
@@ -166,12 +166,12 @@ public class Interpreter {
     private void interpret () {
         int minWorkingSetSize = consolidator.getMinimumSetSize();
         int maxWorkingSetSize = consolidator.getMaximumSetSize();
-        
+
         if (minWorkingSetSize < 0 || maxWorkingSetSize < 0) {
             after.addAll(before);
             return; // No operations in Consolidator.
         }
-        
+
         // Continue until all operations are handled
         outer: while (before.isEmpty() == false || workingSet.isEmpty() == false) {
 
@@ -180,7 +180,7 @@ public class Interpreter {
                     break outer;
                 }
             }
-            
+
             // Expand working set and attempt consolidation.
             while (workingSet.size() <= maxWorkingSetSize) {
                 if (consolidateWorkingSet() == true) {
