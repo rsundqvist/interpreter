@@ -1,9 +1,5 @@
 package interpreter;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import contract.json.Operation;
 import contract.operation.OP_ReadWrite;
 import contract.operation.OP_Swap;
@@ -11,12 +7,15 @@ import contract.operation.OP_Write;
 import contract.operation.OperationType;
 import contract.utility.OpUtil;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * An Interpreter attempts to increase the abstraction level of operation logs be
  * consolidating read and write operations into higher level operations.
  *
  * @author Richard Sundqvist
- *
  */
 public class Interpreter {
 
@@ -28,19 +27,19 @@ public class Interpreter {
      */
     // ============================================================= //
 
-    private final LinkedList<Operation>    before;
-    private final LinkedList<Operation>    after;
+    private final LinkedList<Operation> before;
+    private final LinkedList<Operation> after;
     /**
      * The group of operations currently being evaluated.
      */
     private final LinkedList<OP_ReadWrite> workingSet;
-    private final Consolidator             consolidator;
+    private final Consolidator consolidator;
 
     /**
      * Try to expend the current working set. Messages are immediately added to high level
      * operations.
      */
-    private Operation                      candidate;
+    private Operation candidate;
 
     // ============================================================= //
     /*
@@ -72,8 +71,7 @@ public class Interpreter {
      * Interpret the operations contained in {@code candidateList}. The list provided as
      * argument will not be changed.
      *
-     * @param candidateList
-     *            The list to interpret.
+     * @param candidateList The list to interpret.
      * @return A list of interpreted operations.
      */
     public List<Operation> interpret (List<Operation> candidateList) {
@@ -101,17 +99,16 @@ public class Interpreter {
     /**
      * Add a test case to the Interpreter.
      *
-     * @param testCase
-     *            The test case to add.
+     * @param testCase The test case to add.
      */
     public void addTestCase (OperationType testCase) {
         switch (testCase) {
-        case swap:
-            consolidator.addConsolidable(new OP_Swap());
-            break;
-        default:
-            System.err.print("Cannot consolidate OperationType: " + testCase.toString().toUpperCase());
-            break;
+            case swap:
+                consolidator.addConsolidable(new OP_Swap());
+                break;
+            default:
+                System.err.print("Cannot consolidate OperationType: " + testCase.toString().toUpperCase());
+                break;
         }
     }
 
@@ -119,17 +116,16 @@ public class Interpreter {
      * Remove a given testCase. When this method returns, the testcase is guaranteed to be
      * removed.
      *
-     * @param testCase
-     *            The testcase to remove.
+     * @param testCase The testcase to remove.
      */
     public void removeTestCase (OperationType testCase) {
         switch (testCase) {
-        case swap:
-            consolidator.removeTestCase(testCase, testCase.numAtomicOperations);
-            break;
-        default:
-            System.err.print("Unknown Consolidable type: " + testCase);
-            break;
+            case swap:
+                consolidator.removeTestCase(testCase, testCase.numAtomicOperations);
+                break;
+            default:
+                System.err.print("Unknown Consolidable type: " + testCase);
+                break;
         }
     }
 
@@ -173,7 +169,8 @@ public class Interpreter {
         }
 
         // Continue until all operations are handled
-        outer: while (before.isEmpty() == false || workingSet.isEmpty() == false) {
+        outer:
+        while (before.isEmpty() == false || workingSet.isEmpty() == false) {
 
             while (workingSet.size() < minWorkingSetSize) {
                 if (tryExpandWorkingSet() == false) {
@@ -185,8 +182,7 @@ public class Interpreter {
             while (workingSet.size() <= maxWorkingSetSize) {
                 if (consolidateWorkingSet() == true) {
                     workingSet.clear();
-                    continue outer; // Working set converted to a more complex
-                                    // operation. Begin work on new set.
+                    continue outer; // Begin work on new set.
                 }
                 if (tryExpandWorkingSet() == false) {
                     break outer;

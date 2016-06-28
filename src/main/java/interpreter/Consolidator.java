@@ -1,29 +1,28 @@
 package interpreter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import contract.json.Operation;
 import contract.operation.HighLevelOperation;
 import contract.operation.OP_ReadWrite;
 import contract.operation.OP_Swap;
 import contract.operation.OperationType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A Consolidator attempts to consolidate low level (read/write) operations into higher
  * level operations.
  *
  * @author Richard Sundqvist
- *
  */
 public class Consolidator {
 
     /**
      * The maximum number of operations a Consolidable may consist of.
      */
-    public static final int                       MAX_SIZE       = 100;
-    private int                                   minimumSetSize = Integer.MAX_VALUE;
-    private int                                   maximumSetSize = Integer.MIN_VALUE;
+    public static final int MAX_SIZE = 100;
+    private int minimumSetSize = Integer.MAX_VALUE;
+    private int maximumSetSize = Integer.MIN_VALUE;
     private final ArrayList<HighLevelOperation>[] invokers;
 
     /**
@@ -33,7 +32,7 @@ public class Consolidator {
     public Consolidator () {
         invokers = new ArrayList[MAX_SIZE];
         for (int i = 0; i < MAX_SIZE; i++) {
-            invokers [i] = new ArrayList<HighLevelOperation>();
+            invokers[i] = new ArrayList<HighLevelOperation>();
         }
         addDefaultInvokers();
     }
@@ -49,8 +48,7 @@ public class Consolidator {
      * Returns true if the type of the OperationType given as argument is among the test
      * cases used by this Consolidator.
      *
-     * @param testCase
-     *            The OperationType to test.
+     * @param testCase The OperationType to test.
      * @return True if the test case type is among the tested, false otherwise.
      */
     public boolean checkTestCase (OperationType testCase) {
@@ -67,8 +65,7 @@ public class Consolidator {
      * Adds another Consolidable for this Consolidator. Will not any any Consolidable type
      * more than once.
      *
-     * @param highLevelOperation
-     *            The High Level Operation to add.
+     * @param highLevelOperation The High Level Operation to add.
      */
     public void addConsolidable (HighLevelOperation highLevelOperation) {
         int rwCount = highLevelOperation.operation.numAtomicOperations;
@@ -79,27 +76,26 @@ public class Consolidator {
             maximumSetSize = rwCount;
         }
         Operation newOp = highLevelOperation;
-        for (HighLevelOperation hlo : invokers [rwCount]) {
+        for (HighLevelOperation hlo : invokers[rwCount]) {
             Operation op = hlo;
             if (newOp.operation == op.operation) {
                 return;
             }
         }
-        invokers [rwCount].add(highLevelOperation);
+        invokers[rwCount].add(highLevelOperation);
     }
 
     /**
      * Attempt to consolidate the working set supplied. Returns a consolidated operation
      * if successful, null otherwise.
      *
-     * @param rwList
-     *            The list of read/write operations to consolidate.
+     * @param rwList The list of read/write operations to consolidate.
      * @return A consolidated operation if successful, null otherwise.
      */
     public Operation attemptConsolidate (List<OP_ReadWrite> rwList) {
         Operation highLevelOperation;
 
-        for (HighLevelOperation invoker : invokers [rwList.size()]) {
+        for (HighLevelOperation invoker : invokers[rwList.size()]) {
             highLevelOperation = invoker.consolidate(rwList);
 
             if (highLevelOperation != null) {
@@ -143,7 +139,7 @@ public class Consolidator {
         ArrayList<OperationType> simpleNames = new ArrayList<OperationType>();
 
         for (int i = 0; i < MAX_SIZE; i++) {
-            for (HighLevelOperation hlo : invokers [i]) {
+            for (HighLevelOperation hlo : invokers[i]) {
                 Operation op = hlo;
                 simpleNames.add(op.operation);
             }
@@ -155,14 +151,12 @@ public class Consolidator {
      * Remove a given testCase. When this method returns, the testcase is guaranteed to be
      * removed.
      *
-     * @param testCase
-     *            The testcase to remove.
-     * @param rwCount
-     *            The number of variables the test case consists of.
+     * @param testCase The testcase to remove.
+     * @param rwCount The number of variables the test case consists of.
      */
     public void removeTestCase (OperationType testCase, int rwCount) {
         HighLevelOperation victim = null;
-        for (HighLevelOperation hlo : invokers [rwCount]) {
+        for (HighLevelOperation hlo : invokers[rwCount]) {
             Operation op = hlo;
             if (testCase == op.operation) {
                 victim = hlo;
@@ -170,7 +164,7 @@ public class Consolidator {
             }
         }
         if (victim != null) {
-            invokers [rwCount].remove(victim);
+            invokers[rwCount].remove(victim);
         }
         if (victim.operation.numAtomicOperations == maximumSetSize) {
             recalculateMaxSetSize();
@@ -186,7 +180,7 @@ public class Consolidator {
     private void recalculateMaxSetSize () {
         maximumSetSize = Integer.MIN_VALUE;
         for (int i = 0; i < MAX_SIZE; i++) {
-            for (HighLevelOperation hlo : invokers [i]) {
+            for (HighLevelOperation hlo : invokers[i]) {
                 if (hlo.operation.numAtomicOperations > maximumSetSize) {
                     maximumSetSize = hlo.operation.numAtomicOperations;
                 }
@@ -200,7 +194,7 @@ public class Consolidator {
     private void recalculateMinSetSize () {
         minimumSetSize = Integer.MAX_VALUE;
         for (int i = 0; i < MAX_SIZE; i++) {
-            for (HighLevelOperation hlo : invokers [i]) {
+            for (HighLevelOperation hlo : invokers[i]) {
                 if (hlo.operation.numAtomicOperations > minimumSetSize) {
                     minimumSetSize = hlo.operation.numAtomicOperations;
                 }
